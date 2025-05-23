@@ -31,29 +31,47 @@ export function LoginForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    setTimeout(() => {
-      setIsLoading(false)
-      const { email, password } = values
-      authApi.login(email, password).then((response) => {
-        if (response) {
-          const { user, token } = response
-          localStorage.setItem("token", token)
-          localStorage.setItem("user", JSON.stringify(user))
-          setIsLoading(false)
-          form.reset()
-          toast({
-            title: "Inicio de sesión exitoso",
-            description: "Bienvenido al Sistema de Registro de Prospectos",
-          })
-          router.push("/dashboard")
-        }
+    const { email, password } = values
+
+    try {
+      const response = await authApi.login(email, password)
+
+      if (!response) {
+        toast({
+          title: "Error de autenticación",
+          description: "Correo o contraseña incorrectos",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+
+      const { user, token } = response
+
+      localStorage.setItem("token", token)
+      localStorage.setItem("user", JSON.stringify(user))
+      toast({
+        title: "Inicio de sesión exitoso",
+        description: "Bienvenido al Sistema de Registro de Prospectos",
       })
+
+      form.reset()
       router.push("/dashboard")
-    }, 1000)
+    } catch (err) {
+      console.error(err)
+      toast({
+        title: "Error inesperado",
+        description: "Hubo un problema al iniciar sesión",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
+
 
   return (
     <Card className="w-full border-none shadow-lg">

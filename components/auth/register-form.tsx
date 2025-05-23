@@ -12,6 +12,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
+import { authApi } from "@/lib/api/auth-api"
+
+
+export interface RegisterFormData{
+  name: string
+  email: string
+  password: string
+  role: string
+}
 
 const formSchema = z
   .object({
@@ -42,19 +51,47 @@ export function RegisterForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
+    const userRegister: RegisterFormData = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      role: values.role,
+    }
 
-    // Simulación de registro
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await authApi.register(userRegister)
+
+      if (!response) {
+        toast({
+          title: "Error al registrar",
+          description: "Verifica los datos o intenta más tarde",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+
       toast({
         title: "Registro exitoso",
         description: "Tu cuenta ha sido creada correctamente",
       })
+
+      form.reset()
       router.push("/")
-    }, 1000)
+    } catch (error) {
+      console.error(error)
+      toast({
+        title: "Error inesperado",
+        description: "Hubo un problema al registrar",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
+
 
   return (
     <Card className="w-full border-none shadow-lg">

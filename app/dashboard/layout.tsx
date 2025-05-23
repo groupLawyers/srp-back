@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { TopBar } from "@/components/dashboard/top-bar"
-import { UserProvider } from "@/lib/context/user-context"
+import { UserContext, UserProvider } from "@/lib/context/user-context"
 import { ChatbotIcon } from "@/components/chatbot/chatboticon"
 
 export default function DashboardLayout({
@@ -23,6 +23,8 @@ export default function DashboardLayout({
   })
 
   const pathname = usePathname()
+  console.log(UserContext.Consumer, "nombre")
+  console.log(UserContext.Provider.name, "provicer")
 
   return (
     <UserProvider>

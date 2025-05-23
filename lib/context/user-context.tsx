@@ -26,8 +26,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const loadUser = async () => {
       try {
         // Intentar cargar el usuario desde localStorage o una API
-        const currentUser = await authApi.getCurrentUser()
-        setUser(currentUser)
+        const data = JSON.parse(localStorage.getItem("user") as string)
+        setUser(data)
       } catch (error) {
         console.error("Error cargando usuario:", error)
       } finally {

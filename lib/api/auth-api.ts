@@ -1,86 +1,131 @@
-// API simulada para autenticación
-// Reemplazar con llamadas reales a tu backend cuando esté listo
-
 import type { Usuario } from "@/types/usuario"
 
-// Usuarios simulados
-const usuariosMock: Usuario[] = [
-  {
-    id: "1",
-    nombre: "Carlos Rodríguez",
-    email: "carlos@ejemplo.com",
-    role: "admin",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: "2",
-    nombre: "Ana Martínez",
-    email: "ana@ejemplo.com",
-    role: "vendedor",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-]
-
 export const authApi = {
+
   login: async (email: string, password: string): Promise<{ user: Usuario; token: string } | null> => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      const res = await fetch("http://localhost:3001/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Simular autenticación exitosa
-    // const user = usuariosMock.find((u) => u.email === email)
-    const user = usuariosMock[0]
-    if (!user) return null
+      if (!res.ok) {
+        console.error("Error al iniciar sesión", await res.text());
+        return null;
+      }
 
-    return {
-      user,
-      token: "token-simulado-" + Math.random().toString(36).substring(2),
+      const data = await res.json();
+      return {
+        user: data.user,
+        token: data.token,
+      };
+    } catch (err) {
+      console.error("Error en login:", err);
+      return null;
     }
   },
 
   register: async (userData: {
-    nombre: string
-    email: string
-    password: string
-    role: string
+    name: string, email: string, password: string, role: string
   }): Promise<{ user: Usuario; token: string } | null> => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      const res = await fetch("http://localhost:3001/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
 
-    const newUser: Usuario = {
-      id: Math.random().toString(36).substring(2, 9),
-      nombre: userData.nombre,
-      email: userData.email,
-      role: userData.role as "admin" | "vendedor",
-      avatar: "/placeholder.svg?height=32&width=32",
+      if (!res.ok) {
+        console.error("Error al registrar usuario", await res.text())
+        return null
+      }
+
+      const data = await res.json()
+      const newUser = { ...data.user, avatar: "/placeholder.svg?height=32&width=32" }
+      return {
+        user: newUser,
+        token: "token-simulado-" + Math.random().toString(36).substring(2),
+      }
+    } catch (err) {
+      console.error("Error en registro:", err)
+      return null
+    }
+  },
+
+
+  logout: async (): Promise<void> => {
+    try {
+      const res = await fetch("http://localhost:3001/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      if (!res.ok) {
+        console.error("Error al cerrar sesión", await res.text())
+        return
+      }
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err)
+      return
+    }
+  },
+
+  getUser: async (): Promise<Usuario | null> => {
+  try {
+    const res = await fetch("http://localhost:3001/auth/profile", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+
+    if (!res.ok) {
+      console.error("Error al obtener usuario", await res.text())
+      return null
     }
 
-    return {
-      user: newUser,
-      token: "token-simulado-" + Math.random().toString(36).substring(2),
+    const data = await res.json()
+    return data.user 
+  } catch (err) {
+    console.error("Error al obtener usuario:", err)
+    return null
+  }
+},
+
+
+  updateUser: async (userData: {
+    nombre: string, email: string, password: string, role: string
+  }): Promise<{ user: Usuario; token: string } | null> => {
+    try {
+      const res = await fetch("http://localhost:3001/auth/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
+
+      if (!res.ok) {
+        console.error("Error al actualizar usuario", await res.text())
+        return null
+      }
+
+      const data = await res.json()
+      const newUser = { ...data.user, avatar: "/placeholder.svg?height=32&width=32" }
+      return {
+        user: newUser,
+        token: "token-simulado-" + Math.random().toString(36).substring(2),
+      }
+    } catch (err) {
+      console.error("Error en actualizar usuario:", err)
+      return null
     }
-  },
-
-  logout: async (): Promise<boolean> => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    return true
-  },
-
-  getCurrentUser: async (): Promise<Usuario | null> => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    // Simular obtener usuario de la sesión actual
-    return usuariosMock[0]
-  },
-
-  updateProfile: async (userId: string, userData: Partial<Usuario>): Promise<Usuario | null> => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    const userIndex = usuariosMock.findIndex((u) => u.id === userId)
-    if (userIndex === -1) return null
-
-    const updatedUser = { ...usuariosMock[userIndex], ...userData }
-    return updatedUser
-  },
-
-  changePassword: async (userId: string, currentPassword: string, newPassword: string): Promise<boolean> => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    return true
   },
 }
+
