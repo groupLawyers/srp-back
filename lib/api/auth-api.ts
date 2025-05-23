@@ -26,7 +26,8 @@ export const authApi = {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Simular autenticación exitosa
-    const user = usuariosMock.find((u) => u.email === email)
+    // const user = usuariosMock.find((u) => u.email === email)
+    const user = usuariosMock[0]
     if (!user) return null
 
     return {

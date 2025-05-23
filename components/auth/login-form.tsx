@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
+import { authApi } from "@/lib/api/auth-api"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Correo electrónico inválido" }),
@@ -33,12 +34,22 @@ export function LoginForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    // Simulación de login
     setTimeout(() => {
       setIsLoading(false)
-      toast({
-        title: "Inicio de sesión exitoso",
-        description: "Bienvenido al Sistema de Registro de Prospectos",
+      const { email, password } = values
+      authApi.login(email, password).then((response) => {
+        if (response) {
+          const { user, token } = response
+          localStorage.setItem("token", token)
+          localStorage.setItem("user", JSON.stringify(user))
+          setIsLoading(false)
+          form.reset()
+          toast({
+            title: "Inicio de sesión exitoso",
+            description: "Bienvenido al Sistema de Registro de Prospectos",
+          })
+          router.push("/dashboard")
+        }
       })
       router.push("/dashboard")
     }, 1000)

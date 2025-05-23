@@ -37,5 +37,5 @@ export default function DashboardLayout({
       </SidebarProvider>
       <ChatbotIcon/>
     </UserProvider>
-  )g
+  )
 }

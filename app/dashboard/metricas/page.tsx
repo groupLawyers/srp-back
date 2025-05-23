@@ -9,7 +9,7 @@ export default function MetricasPage() {
       <MetricasHeader />
       <MetricasCards />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <MetricasCharts />
+        <MetricasCharts />.
         <TopVendedores />
       </div>
     </div>
